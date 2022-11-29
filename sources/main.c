@@ -117,12 +117,12 @@ void	fill_data(t_matrix *matrix, char *filename)
 	fd = open(filename, O_RDONLY);
 	if (fd == -1)
 		error_fd(filename);
-	printf("fd: %d\tfile: %s\n", fd, filename);
 	while (++i < matrix->height)
 	{
 		line = get_next_line(fd);
 		if (!line)
 			break ;
+		printf("line: %s", line);
 		fill_matrix(line, matrix->arr[i]);
 		free(line);
 	}

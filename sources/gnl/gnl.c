@@ -47,22 +47,26 @@ static char	*ft_update(char **backup, char *str)
 
 char	*get_next_line(int fd)
 {
-	char		*result;
-	static char	*backup[1024];
-	char		slice[BUFFER_SIZE + 1];
-	int			read_bytes;
+	char	*ret	= calloc(sizeof(*ret), 9999);
+	char	chr		= 0;
+	int		index	= 0;
+	int		count	= 0;
 
-	read_bytes = 1;
-	result = 0;
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (result);
-	while (read_bytes && !ft_strchr(backup[fd], '\n'))
+	while (1)
 	{
-		read_bytes = read(fd, slice, BUFFER_SIZE);
-		slice[read_bytes] = '\0';
-		if (read_bytes < 0 || !ft_update(&backup[fd], slice))
-			return (ft_clear_backup(&backup[fd]));
+		count = read(fd, &chr, 1);
+		if (count <= 0 || chr == '\n') {
+			if (chr == '\n')
+				ret[index++] = '\n';
+			ret[index] = 0;
+			break ;
+		}
+		ret[index++] = chr;
 	}
-	result = ft_init_string(&backup[fd]);
-	return (result);
+	if (!*ret)
+	{
+		free(ret);
+		return (NULL);
+	}
+	return (ret);
 }

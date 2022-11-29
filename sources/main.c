@@ -157,6 +157,9 @@ int	main(int argc, char **argv)
 	
 	fill_data(matrix, argv[1]);
 	fill_data(matrix->next, argv[2]);
-//	print_content(matrix->next);
+	puts("");
+	print_content(matrix);
+	puts("");
+	print_content(matrix->next);
 	return (0);
 }

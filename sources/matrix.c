@@ -89,8 +89,40 @@ t_matrix *set_matrix(char **argv)
 	matrix = init_matrix(argv, 1);
 	matrix->next = init_matrix(argv, 2);
 	matrix->next->prev = matrix;
-	
+
 	fill_data(matrix, argv[1]);
 	fill_data(matrix->next, argv[2]);
 	return (matrix);
+}
+
+void	*multiply_matrix(void* arg)
+{
+	t_thread *thread = (t_thread *)arg;
+	pthread_mutex_lock(thread->main->read_data);
+	
+	int row = thread->i / thread->main->result->height;
+	int col = thread->i % thread->main->result->width;
+	
+	int small_width = thread->main->matrix->next->width;
+	int small_height = thread->main->matrix->next->height;
+	
+	int max_width = thread->main->matrix->width - 1;
+	int max_height = thread->main->matrix->height - 1;
+	
+	int k = 0;
+	for (int i = row; i < row + small_width; i++)
+	{
+		int l = 0;
+		for (int j = col; j < col + small_height; j++)
+		{
+			int num = 0;
+			if (i <= max_height && j <= max_width)
+				num = thread->main->matrix->arr[i][j];
+			thread->main->result->arr[row][col] += num * thread->main->matrix->next->arr[k][l++];
+		}
+		k++;
+	}
+	usleep(5000);
+	pthread_mutex_unlock(thread->main->read_data);
+    pthread_exit(NULL);
 }

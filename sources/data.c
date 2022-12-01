@@ -40,11 +40,10 @@ int get_height(char *filename)
 	while (1)
 	{
 		line = get_next_line(fd);
-		if (!line)
+		if (!line || !strncmp(line, "\n", 1))
 			break;
 		count++;
 		free(line);
 	}
-	close(fd);
 	return (count);
 }

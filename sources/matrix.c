@@ -71,25 +71,14 @@ static void	fill_data(t_matrix *matrix, char *filename)
 
 void	print_content(t_matrix *matrix)
 {
-	int	i;
-	int	j;
-	t_matrix *mx;
-
-	i = -1;
-	j = -1;
-	mx = matrix;
-	while (mx)
-	{	
-		while (++i < mx->height)
-		{
-			while (++j < mx->width)
-				printf("%d ", mx->arr[i][j]);
-			printf("\n");
-			j = -1;
-		}
-		mx = mx->next;
-		i = -1;
-		puts("");
+	int	i = -1;
+	int	j = -1;
+	while (++i < matrix->height)
+	{
+		while (++j < matrix->width)
+			printf("%d ", matrix->arr[i][j]);
+		printf("\n");
+		j = -1;
 	}
 }
 
@@ -103,6 +92,5 @@ t_matrix *set_matrix(char **argv)
 	
 	fill_data(matrix, argv[1]);
 	fill_data(matrix->next, argv[2]);
-	
 	return (matrix);
 }

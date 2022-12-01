@@ -55,6 +55,29 @@ void execute_threads(t_main *main)
 		pthread_join(*main->thread[i]->thread, NULL);
 }
 
+void	print_result(t_main *main)
+{
+	printf(BOLD_GREEN);
+	printf("input A: \n");
+	printf(RESET);
+	print_content(main->matrix);
+	puts("");
+	
+	printf(BOLD_GREEN);
+	printf("input B: \n");
+	printf(RESET);
+	print_content(main->matrix->next);
+	puts("");
+	
+	printf(BOLD_BLUE);
+	printf("output C: \n");
+	printf(RESET);
+	printf(BOLD_WHITE);
+	print_content(main->result);
+	printf(RESET);
+	puts("");
+}
+
 int	main(int argc, char **argv)
 {
 	t_main	*main;
@@ -63,9 +86,6 @@ int	main(int argc, char **argv)
 		error_args();
 	main = init_main(argv);
 	execute_threads(main);
-	printf(BOLD_BLUE);
-	printf("output: \n");
-	printf(RESET);
-	print_content(main->result);
+	print_result(main);
 	return (0);
 }

@@ -2,3 +2,4 @@ bin/
 bin/*.o
 matrix
 .vscode
+output.log

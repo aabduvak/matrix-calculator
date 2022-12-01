@@ -17,14 +17,14 @@ OBJS			= $(SRCS:sources/%.c=sources/bin/%.o)
 # Command and Flags
 
 NAME			= matrix
+PARAMS			= data/m1.mx data/m0.mx
 CC				= gcc
 RM				= rm -rf
 CFLAGS			= -Wall -Wextra -Werror -pthread
 TFLAGS			= -g -lpthread
 
-# Directories
-
 BIN				= ./sources/bin/
+LOG				= output.log
 
 # Rules
 
@@ -56,15 +56,20 @@ fclean : clean
 	@echo $(YELLOW) "Removing $(NAME)..." $(END)
 	@$(RM) $(NAME)
 	@$(RM) $(BIN)
+	@$(RM) $(LOG)
 	@echo $(RED) "$(NAME) deleted successfully!\n" $(END)
 
 re : fclean all
 
 run : $(NAME)
-	@./$(NAME) data/m1.mx data/m0.mx
+	@./$(NAME) $(PARAMS)
 
 test: $(NAME)
-	valgrind --tool=helgrind ./$(NAME) data/m1.mx data/m0.mx
+	valgrind --tool=helgrind ./$(NAME) $(PARAMS)
+
+leaks: $(NAME)
+	@valgrind --log-file=$(LOG) --leak-check=yes --tool=memcheck ./$(NAME) $(PARAMS) 
+	@cat $(LOG)
 
 help :
 	@echo "------------------------------------ <<HELP COMMAND>> ------------------------------------"

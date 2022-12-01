@@ -1,7 +1,6 @@
-#include <general.h>
-#include <utils.h>
+#include "matrix.h"
 
-int	count_words(char const *str, char c)
+static int	count_words(char const *str, char c)
 {
 	int	count;
 	int	i;

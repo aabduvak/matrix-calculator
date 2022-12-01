@@ -1,165 +1,71 @@
-#include <general.h>
-#include <gnl.h>
-#include <errors.h>
-#include <macro.h>
-#include <utils.h>
+#include "matrix.h"
 
-//void* multi(void* arg)
-//{
-//    int i = step_i++; //i denotes row number of resultant matC
-   
-//    for (int j = 0; j < MAX; j++)
-//      for (int k = 0; k < MAX; k++)
-//        matC[i][j] += matA[i][k] * matB[k][j];
-//}
-
-typedef struct s_matrix
+void	*multiply_matrix(void* arg)
 {
-	int **arr;
-	int	i;
-	int width;
-	int height;
-	struct s_matrix *next;
-	struct s_matrix *prev;
-} t_matrix;
-
-
-typedef struct s_thread
-{
-	int			result;
-	int			i;
-	pthread_t	*thread;
-	t_matrix	*matrix;
-} t_thread;
-
-int get_width(char *filename)
-{
-	int fd;
-	int i;
-	char *line;
-	int count;
+	t_thread *thread = (t_thread *)arg;
+	pthread_mutex_lock(thread->main->read_data);
 	
-	count = 0;
-	i = -1;
-	fd = open(filename, O_RDONLY);
-	line = get_next_line(fd);
-	if (!line)
-		return (0);
-	while (line[++i])
-		if (line[i] >= '0' && line[i] <= '9')
-			count++;
-	free(line);
-	close(fd);
-	return (count);
-}
-
-int get_height(char *filename)
-{
-	int fd;
-	char *line;
-	int count;
+	int row = thread->i / thread->main->result->height;
+	int col = thread->i % thread->main->result->width;
 	
-	count = 0;
-	fd = open(filename, O_RDONLY);
-	if (fd == -1)
-		perror("matrix");
-	while (1)
+	int small_width = thread->main->matrix->next->width;
+	int small_height = thread->main->matrix->next->height;
+	
+	int max_width = thread->main->matrix->width - 1;
+	int max_height = thread->main->matrix->height - 1;
+	
+	int k = 0;
+	for (int i = row; i < row + small_width; i++)
 	{
-		line = get_next_line(fd);
-		if (!line)
-			break;
-		count++;
-		free(line);
+		int l = 0;
+		for (int j = col; j < col + small_height; j++)
+		{
+			int num = 0;
+			if (i <= max_height && j <= max_width)
+				num = thread->main->matrix->arr[i][j];
+			thread->main->result->arr[row][col] += num * thread->main->matrix->next->arr[k][l++];
+		}
+		k++;
 	}
-	close(fd);
-	return (count);
+	usleep(5000);
+	pthread_mutex_unlock(thread->main->read_data);
+    pthread_exit(NULL);
 }
 
-void	fill_matrix(char *line, int *arr)
+t_main	*init_main(char **argv)
 {
-	int i;
-	char **str;
+	t_main *main = calloc(1, sizeof(t_main));
+	main->matrix = set_matrix(argv);
+	main->result = res_matrix(main->matrix);
 	
-	i = -1;
-	str = split(line, ' ');
-	while (str[++i])
-		arr[i] = atoi(str[i]);
-	free_arr(str, i);
+	init_threads(main);
+	main->read_data = calloc(1, sizeof(pthread_mutex_t));
+	pthread_mutex_init(main->read_data, NULL);
+	return (main);
 }
 
-t_matrix *init_matrix(char **argv, int id)
+void execute_threads(t_main *main)
 {
-	int			i;
-	t_matrix	*matrix;
+	int i = -1;
 	
+	while (++i < main->count)
+		pthread_create(main->thread[i]->thread, NULL, multiply_matrix, main->thread[i]);
 	i = -1;
-	matrix = (t_matrix *)malloc(sizeof(t_matrix) * 1);
-	matrix->height = get_height(argv[id]);
-	matrix->width = get_width(argv[id]);
-	matrix->arr = (int **)malloc(sizeof(int *) * (matrix->height));
-	while (++i < matrix->height)
-		matrix->arr[i] = (int *)malloc(sizeof(int) * (matrix->width));
-	matrix->next = NULL;
-	matrix->prev = NULL;
-	matrix->i = id - 1;
-	if (matrix->i == 1)
-		matrix->height -= 2;
-	return (matrix);
-}
-
-void	fill_data(t_matrix *matrix, char *filename)
-{
-	int		fd;
-	int		i;
-	char	*line;
-
-	i = -1;
-	fd = open(filename, O_RDONLY);
-	if (fd == -1)
-		error_fd(filename);
-	while (++i < matrix->height)
-	{
-		line = get_next_line(fd);
-		if (!line)
-			break ;
-		printf("line: %s", line);
-		fill_matrix(line, matrix->arr[i]);
-		free(line);
-	}
-	close(fd);
-}
-
-void	print_content(t_matrix *matrix)
-{
-	int	i;
-	int	j;
-
-	i = -1;
-	j = -1;
-	while (++i < matrix->height)
-	{
-		while (++j < matrix->width)
-			printf("%d ", matrix->arr[i][j]);
-		printf("\n");
-		j = -1;
-	}
+	while (++i < main->count)
+		pthread_join(*main->thread[i]->thread, NULL);
 }
 
 int	main(int argc, char **argv)
 {
-	t_matrix	*matrix;
-
+	t_main	*main;
+	
 	if (argc != 3)
 		error_args();
-	matrix = init_matrix(argv, 1);
-	matrix->next = init_matrix(argv, 2);
-	matrix->next->prev = matrix;
-	
-	fill_data(matrix, argv[1]);
-	fill_data(matrix->next, argv[2]);
-	puts("");
-	print_content(matrix);
-	puts("");
-	print_content(matrix->next);
+	main = init_main(argv);
+	execute_threads(main);
+	printf(BOLD_BLUE);
+	printf("output: \n");
+	printf(RESET);
+	print_content(main->result);
 	return (0);
 }

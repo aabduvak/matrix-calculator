@@ -1,5 +1,4 @@
-#include <general.h>
-#include <error.h>
+#include "matrix.h"
 
 void	error_args(void)
 {

@@ -65,7 +65,8 @@ run : $(NAME)
 	@./$(NAME) $(PARAMS)
 
 test: $(NAME)
-	valgrind --tool=helgrind ./$(NAME) $(PARAMS)
+	@valgrind --log-file=$(LOG) --tool=helgrind ./$(NAME) $(PARAMS)
+	@cat $(LOG)
 
 leaks: $(NAME)
 	@valgrind --log-file=$(LOG) --leak-check=yes --tool=memcheck ./$(NAME) $(PARAMS) 

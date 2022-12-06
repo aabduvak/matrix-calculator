@@ -37,9 +37,12 @@ make
 ```
 To run program
 ```bash
-./matrix data/m0.mx data/m1.mx
+./matrix data/m1.mx data/m0.mx
 ```
-
+or just use **Makefile** with default params
+```bash
+make run
+```
 Some usefull commands:
 ```bash
 # To remove objects

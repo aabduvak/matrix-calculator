@@ -1,6 +1,6 @@
 #include "matrix.h"
 
-void	free_all(t_main *main)
+void	free_all(t_main *main) // free all allocated memory blocks
 {
 	int	i = -1;
 

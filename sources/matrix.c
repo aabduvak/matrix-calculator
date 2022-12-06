@@ -6,9 +6,10 @@ static void	fill_matrix(char *line, int *arr)
 	char **str;
 	
 	i = -1;
+	// split line by given char: "Hello world" , ' ' -> ["Hello", "world"]
 	str = split(line, ' ');
 	while (str[++i])
-		arr[i] = atoi(str[i]);
+		arr[i] = atoi(str[i]); // ascii to integer
 	free_arr(str, i);
 }
 
@@ -21,9 +22,11 @@ static t_matrix *init_matrix(char **argv, int id)
 	matrix = (t_matrix *)malloc(sizeof(t_matrix) * 1);
 	matrix->height = get_height(argv[id]);
 	matrix->width = get_width(argv[id]);
+	
 	matrix->arr = (int **)malloc(sizeof(int *) * (matrix->height));
-	while (++i < matrix->height)
+	while (++i < matrix->height) // allocate memory for each row
 		matrix->arr[i] = (int *)malloc(sizeof(int) * (matrix->width));
+	
 	matrix->next = NULL;
 	matrix->prev = NULL;
 	matrix->i = id - 1;
@@ -60,7 +63,7 @@ static void	fill_data(t_matrix *matrix, char *filename)
 		error_fd(filename);
 	while (++i < matrix->height)
 	{
-		line = get_next_line(fd);
+		line = get_next_line(fd); // get line from file
 		if (!line)
 			break ;
 		fill_matrix(line, matrix->arr[i]);
@@ -97,8 +100,8 @@ t_matrix *set_matrix(char **argv)
 
 void	*multiply_matrix(void* arg)
 {
-	t_thread *thread = (t_thread *)arg;
-	pthread_mutex_lock(thread->main->read_data);
+	t_thread *thread = (t_thread *)arg; // typecast address to t_thread struct 
+	pthread_mutex_lock(thread->main->read_data); // lock mutex
 	
 	int row = thread->i / thread->main->result->height;
 	int col = thread->i % thread->main->result->width;
@@ -122,7 +125,7 @@ void	*multiply_matrix(void* arg)
 		}
 		k++;
 	}
-	usleep(5000);
-	pthread_mutex_unlock(thread->main->read_data);
+	usleep(5000); // sleep 5ms
+	pthread_mutex_unlock(thread->main->read_data); // unlock mutex
     pthread_exit(NULL);
 }

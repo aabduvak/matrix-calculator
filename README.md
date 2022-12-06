@@ -2,6 +2,10 @@
 
 <h2 align="center">Just assignment from Parallel Computing lecture 🫥</h2>
 
+<div align="center" style="height: ">
+  <img src="https://github.com/aabduvak/matrix-calculator/assets/matrix.gif">
+</div>
+
 ## Rules:
 1. All matrixes must be square: [7][7], [4][4] or [2][2]
 2. Bigger matrix must be first argument

@@ -63,6 +63,7 @@ re : fclean all
 
 run : $(NAME)
 	@./$(NAME) $(PARAMS)
+	@bash ./config.sh
 
 test: $(NAME)
 	@valgrind --log-file=$(LOG) --tool=helgrind ./$(NAME) $(PARAMS)
